@@ -1,42 +1,25 @@
-let myLibrary = [
-    {
-        title: "Harry Potter",
-        author: "J.K. Rowling",
-        pages: 200,
-        read: "read"
-    },
-    {
-        title: "Harry Potter 2",
-        author: "J.K. Rowling",
-        pages: 300,
-        read: "not read"
-    },
-    {
-        title: "Harry Potter 3",
-        author: "J.K. Rowling",
-        pages: 400,
-        read: "read"
-    },
-    {
-        title: "Harry Potter 4",
-        author: "J.K. Rowling",
-        pages: 500,
-        read: " not read"
-    }
-];
+let myLibrary = [];
 
 function Book(title, author, pages, read) {
     this.title = title;
     this.author = author;
     this.pages = pages;
     this.read = read;
-    this.info = function() {
+    /*this.info = function() {
         return `${this.title} by ${this.author}, ${this.pages} pages, ${this.read}`;
+    }*/
+    this.remove = function() {
+        myLibrary.splice(myLibrary.indexOf(this),1);
+    }
+    this.status = function() {
+        if(this.read === "read") this.read = "not read"
+        else if(this.read === "not read") this.read = "read";
+        refresh();
     }
 }
 
 function addBookToLibrary(title, author, pages, read) {
-    let book = new Book(title, author, pages, read);
+    const book = new Book(title, author, pages, read);
     myLibrary.push(book);
 }
 
@@ -66,16 +49,21 @@ function displayBooks() {
         const panel = document.createElement("div");
         panel.setAttribute("class", "panel")
 
-        const remove = document.createElement("input");
-        remove.setAttribute("type", "button");
-        remove.setAttribute("value", "Remove");
+        const remove = document.createElement("button");
+        remove.innerHTML = "Remove";
         remove.setAttribute("class", "remove-button");
+        remove.addEventListener("click", () => {
+            myLibrary[i].remove();
+            refresh();
+        })
         panel.appendChild(remove);
 
-        const status = document.createElement("input");
-        status.setAttribute("type", "button");
-        status.setAttribute("value", "Change status");
+        const status = document.createElement("button");
+        status.innerHTML = "Change status";
         status.setAttribute("class", "status");
+        status.addEventListener("click", () => {
+            myLibrary[i].status();
+        })
         panel.appendChild(status);
 
         newDiv.appendChild(panel);
@@ -119,15 +107,20 @@ save.addEventListener("click", () => {
     const form = document.querySelector(".form");
     form.classList.remove("active-form");
 
-    const books = document.querySelectorAll(".book");
-    for (let i = 0; i < books.length; i++) {
-        container.removeChild(books[i]);
-    }
-
-    displayBooks();
+    refresh();
 
     title.value = "";
     author.value = "";
     pages.value = "";
     checkbox.checked = false;
 });
+
+function refresh() {
+    let books = document.querySelectorAll(".book");
+
+    for (let i = 0; i < books.length; i++) {
+        container.removeChild(books[i]);
+    }
+
+    displayBooks();
+}
