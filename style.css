@@ -38,6 +38,10 @@ header p {
     
 }
 
+.new-book {
+    margin-left: 20px;
+}
+
 /*Book card*/
 .book {
     display: flex;
@@ -78,6 +82,11 @@ button {
     height: 50px;
     border: none;
     border-radius: 25px;
+    margin: 10px;
+}
+
+button:hover {
+    transform: scale(1.05);
 }
 
 /*Form style*/
@@ -88,7 +97,7 @@ button {
     width: 500px;
     height: 400px;
     transform: translate(-50%, -50%);
-    transition: top 1s ease 1s;
+    transition: all 1s;
     border: 1px solid black;
     border-radius: 10px;
     padding: 10px;
