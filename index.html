@@ -14,26 +14,26 @@
     <div id="container">
         
     </div>
-    <div class="form">
+    <form class="form" action="#" method="POST">
         <div class="user-input">
-            <label for="title" name="title">Book Title:</label>
+            <label for="title">Book Title:</label>
             <input type="text" name="title" id="title">
         </div>
         <div class="user-input">
-            <label for="author" name="author">Author:</label>
+            <label for="author">Author:</label>
             <input type="text" name="author" id="author">
         </div>
         <div class="user-input">
-            <label for="pages" name="pages">Pages:</label>
+            <label for="pages">Pages:</label>
             <input type="text" name="pages" id="pages">
         </div>
         <div class="user-input checkbox">
             <input type="checkbox" name="read-status" class="read-status">
             <label for="read-status">Read?</label>
         </div>
-        <input type="button" class="save-button" value="Save">
-        <input type="button" class="cancel-button" value="Cancel">
-    </div>
+        <input type="submit" class="save-button" value="Save">
+        <input type="reset" class="cancel-button" value="Cancel">
+    </form>
     <button type="button" class="new-book">NEW BOOK</button>
     <script src="main.js"></script>
 </body>
