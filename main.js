@@ -24,10 +24,6 @@ class Book {
         this.status = status;
     }
 
-    remove() {
-        myLibrary.splice(myLibrary.indexOf(this),1);
-    }
-
     setStatus() {
         this.status = this.status === 'read' ? 'not read' : 'read';
     }
