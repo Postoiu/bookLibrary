@@ -1,78 +1,109 @@
-let myLibrary = [];
+let booksContainerInstance;
 
-function Book(title, author, pages, read) {
-    this.title = title;
-    this.author = author;
-    this.pages = pages;
-    this.read = read;
-    /*this.info = function() {
-        return `${this.title} by ${this.author}, ${this.pages} pages, ${this.read}`;
-    }*/
-    this.remove = function() {
-        myLibrary.splice(myLibrary.indexOf(this),1);
+class Library {
+    static #books = [];
+
+    static addBookToLibrary(book) {
+        this.#books.push(book);
     }
-    this.status = function() {
-        if(this.read === "read") this.read = "not read"
-        else if(this.read === "not read") this.read = "read";
-        refresh();
+
+    static getBooks() {
+        return this.#books;
+    }
+
+    static removeBook(bookIndex) {
+        this.#books.splice(bookIndex, 1);
     }
 }
 
-function addBookToLibrary(title, author, pages, read) {
-    const book = new Book(title, author, pages, read);
-    myLibrary.push(book);
+class Book {
+    constructor(title, author, pages, status) {
+        this.title = title;
+        this.author = author;
+        this.pages = pages;
+        this.status = status;
+    }
+
+    setStatus() {
+        this.status = this.status === 'read' ? 'not read' : 'read';
+    }
 }
 
-//Display books in myLibrary
-const container = document.querySelector("#container");
-function displayBooks() {
-    for(let i = 0; i < myLibrary.length; i++) {
-        const newDiv = document.createElement("div");
-        newDiv.setAttribute("class", "book");
+class BooksContainer {
+    constructor(id) {
+        if(booksContainerInstance) {
+            console.log('New instance cannot be created');
+            return;
+        }
 
-        const title = document.createElement("p");
-        title.textContent = `Title: ${myLibrary[i].title}`;
-        newDiv.appendChild(title);
+        booksContainerInstance = this;
+        this.container = document.getElementById(id);
+    }
 
-        const author = document.createElement("p");
-        author.textContent = `Author: ${myLibrary[i].author}`;
-        newDiv.appendChild(author);
+    display() {
+        if (this.container.querySelector('.book')) {
+            this.container.replaceChildren();
+        }
 
-        const pages = document.createElement("p");
-        pages.textContent = `Pages: ${myLibrary[i].pages}`;
-        newDiv.appendChild(pages);
+        const books = Library.getBooks();
 
-        const read = document.createElement("p");
-        read.textContent = `Status: ${myLibrary[i].read}`;
-        newDiv.appendChild(read);
-        
-        const panel = document.createElement("div");
-        panel.setAttribute("class", "panel")
+        books.forEach((book, i) => {
+            const bookContainer = document.createElement("div");
+            bookContainer.setAttribute("class", "book");
+            bookContainer.id = i;
 
-        const remove = document.createElement("button");
-        remove.innerHTML = "Remove";
-        remove.setAttribute("class", "remove-button");
-        remove.addEventListener("click", () => {
-            myLibrary[i].remove();
-            refresh();
+            const title = createParagaraph(`Title: ${book.title}`);
+            const author = createParagaraph(`Author: ${book.author}`);
+            const pages = createParagaraph(`Pages: ${book.pages}`);
+            const status = createParagaraph(`Status: ${book.status}`);
+
+            const controlsPanel = document.createElement("div");
+            controlsPanel.setAttribute("class", "panel");
+
+            const removeBtn = createButton('Remove', 'remove-button');
+            const statusBtn = createButton('Change status', 'status');
+            controlsPanel.append(removeBtn, statusBtn);
+
+            bookContainer.append(title, author, pages, status, controlsPanel);
+
+            this.container.appendChild(bookContainer);
         })
-        panel.appendChild(remove);
 
-        const status = document.createElement("button");
-        status.innerHTML = "Change status";
-        status.setAttribute("class", "status");
-        status.addEventListener("click", () => {
-            myLibrary[i].status();
+        this.container.addEventListener('click', e => {
+            e.stopImmediatePropagation();
+
+            if (e.target.className === 'remove-button') {
+                Library.removeBook(e.target.closest('.book').id);
+            }
+
+            if (e.target.className === 'status') {
+                const targetBook = Library.getBooks()[e.target.closest('.book').id];
+                targetBook.setStatus();
+            }
+
+            this.display();
         })
-        panel.appendChild(status);
 
-        newDiv.appendChild(panel);
-
-        container.appendChild(newDiv);
     }
 }
 
-displayBooks();
+function createParagaraph(text) {
+    const p = document.createElement('p');
+    p.textContent = text;
+
+    return p;
+}
+
+function createButton(text, className) {
+    const btn = document.createElement("button");
+    btn.textContent = text;
+    btn.setAttribute("class", className);
+
+    return btn;
+}
+
+const container = new BooksContainer('container');
+container.display();
 
 //Add new book
 //Call the form
@@ -88,39 +119,20 @@ cancel.addEventListener("click", () => {
     form.classList.remove("active-form");
 });
 
-const save = document.querySelector(".save-button");
-save.addEventListener("click", () => {
-    const title = document.getElementById("title");
-    const author = document.getElementById("author");
-    const pages = document.getElementById("pages");
-    const checkbox = document.querySelector(".read-status");
-    let status;
+const form = document.querySelector('.form');
+form.addEventListener('submit', (e) => {
+    e.preventDefault();
 
-    if(checkbox.checked) {
-        status = "read";
-    } else {
-        status = "not read";
-    }
+    const title = e.target.querySelector('#title').value;
+    const author = e.target.querySelector('#author').value;
+    const pages = e.target.querySelector('#pages').value;
+    const checkbox = e.target.querySelector('.read-status');
+    const status = checkbox.checked ? 'read' : 'not read';
 
-    addBookToLibrary(title.value, author.value, pages.value, status);
+    const book = new Book(title, author, pages, status);
+    Library.addBookToLibrary(book);
 
-    const form = document.querySelector(".form");
-    form.classList.remove("active-form");
+    document.querySelector('.cancel-button').click();
 
-    refresh();
-
-    title.value = "";
-    author.value = "";
-    pages.value = "";
-    checkbox.checked = false;
-});
-
-function refresh() {
-    let books = document.querySelectorAll(".book");
-
-    for (let i = 0; i < books.length; i++) {
-        container.removeChild(books[i]);
-    }
-
-    displayBooks();
-}
+    container.display();
+})
